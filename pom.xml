@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <!-- See https://github.com/gantsign/maven-parent-poms -->
+    <groupId>com.github.gantsign.parent</groupId>
+    <artifactId>java-parent</artifactId>
+    <!-- For Java 8 use the following alternate parent artifact ID -->
+    <!-- <artifactId>java8-parent</artifactId> -->
+    <version>2.15.0</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>me.rafique</groupId>
+  <artifactId>poker-hand</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <properties>
+    <checkstyle.failsOnError>false</checkstyle.failsOnError>
+    <docker.image>poker-hand</docker.image>
+
+    <!-- Maven Enforcer check -->
+    <enforcer.skip>true</enforcer.skip>
+
+    <!-- JaCoCo code coverage check -->
+    <jacoco.file.minimum-coverage-ratio>0.75</jacoco.file.minimum-coverage-ratio>
+    <jacoco.skip>true</jacoco.skip>
+
+    <java.require.version>[11,12)</java.require.version>
+    <java.target.version>11</java.target.version>
+
+    <!-- Check dependencies are used, declared and have the correct scope -->
+    <mdep.analyze.skip>true</mdep.analyze.skip>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-guava</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths combine.children="append">
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.20</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>me.rafique.poker_hand.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- Uncomment to auto-add license header to files. -->
+      <!--
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <projectName>Poker Hand Sorter</projectName>
+          <licenseName>TODO e.g. apache_v2 (for options run: mvn -N license:license-list)</licenseName>
+          <extraExtensions>
+            <kt>java</kt>
+          </extraExtensions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>config</id>
+            <goals>
+              <goal>update-file-header</goal>
+            </goals>
+            <phase>process-sources</phase>
+            <configuration>
+              <roots>${basedir}</roots>
+              <includes>.editorconfig,.gitattributes,pom.xml</includes>
+              <extraExtensions>
+                <editorconfig>properties</editorconfig>
+                <gitattributes>properties</gitattributes>
+                <yml>properties</yml>
+              </extraExtensions>
+            </configuration>
+          </execution>
+          <execution>
+            <id>sources</id>
+            <goals>
+              <goal>update-file-header</goal>
+            </goals>
+            <phase>process-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+      -->
+    </plugins>
+  </build>
+
+  <inceptionYear>${package.getClass().forName("java.time.LocalDate").now().getYear()}</inceptionYear>
+
+  <organization>
+    <name>Rafique</name>
+  </organization>
+
+  <!-- Don't inherit license from parent POM -->
+  <licenses>
+    <license>
+      <name>TODO</name>
+    </license>
+  </licenses>
+
+  <!-- Don't inherit developers from parent POM -->
+  <developers>
+    <developer>
+      <name>TODO</name>
+    </developer>
+  </developers>
+
+  <profiles>
+    <profile>
+      <id>docker-local</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>docker-images</id>
+                <goals>
+                  <goal>dockerBuild</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <to>
+                    <image>${docker.image}:${project.version}</image>
+                    <tags>
+                      <tag>latest</tag>
+                    </tags>
+                  </to>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!--           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <docker.image>${docker.image}:${project.version}</docker.image>
+              </systemPropertyVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+ -->
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
